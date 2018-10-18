@@ -38,7 +38,7 @@ public class Bank implements Accounts {
 	public String deposit(@QueryParam("customer") String name, @QueryParam("amount") String amount) {
 		Customer customer = Customer.getCustomer(name);
 		increment(customer, Integer.parseInt(amount));
-		return "New balance for " + customer + " is " + getBalance(customer);
+		return "New balance for " + customer + " is $" + getBalance(customer);
 	}
 
 	
