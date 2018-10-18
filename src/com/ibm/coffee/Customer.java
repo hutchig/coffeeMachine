@@ -7,8 +7,8 @@ public class Customer {
 
 	private static HashMap<String, Customer> people = new HashMap<String, Customer>();
 
-	public Customer(String name) {
-		this.name = name;
+	private Customer(String name) {
+		this.name = name.intern();
 	}
 
 	public static Customer getCustomer(String name) {
@@ -17,7 +17,7 @@ public class Customer {
 		
 		if (result == null) {
 			result = new Customer(name);
-			people.put(name, result);
+			people.put(result.name, result);
 		}
 		return result;
 
