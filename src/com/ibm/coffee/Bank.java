@@ -10,6 +10,10 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
+import com.ibm.coffee.Accounts;
+import com.ibm.coffee.Customer;
+import com.ibm.coffee.NotEnoughFundsException;
+
 @Path("accounts")
 @ApplicationScoped
 public class Bank implements Accounts {
@@ -29,7 +33,7 @@ public class Bank implements Accounts {
 		for (Customer person : vault.keySet()) {
 			result += person + " $" + vault.get(person) + "<br>";
 		}
-		return result;
+		return result + "\n";
 
 	}
 
@@ -38,7 +42,7 @@ public class Bank implements Accounts {
 	public String deposit(@QueryParam("customer") String name, @QueryParam("amount") String amount) {
 		Customer customer = Customer.getCustomer(name);
 		increment(customer, Integer.parseInt(amount));
-		return "New balance for " + customer + " is $" + getBalance(customer);
+		return "New balance for " + customer + " is $" + getBalance(customer) + "\n";
 	}
 
 	

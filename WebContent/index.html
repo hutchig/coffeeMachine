@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+
+<meta charset="utf-8" />
+
+<title>Coffee Machine App</title>
+
+<h3>Would you like a refreshing cup of Tea?</h3>
+
+<input onclick="buyTea()" value="Yes please!" type="button"
+	style="height: 50px; width: 100px">
+
+<h3>To charge your account open a terminal and issue:</h3>
+<h4>curl -X GET http://localhost:9080/CoffeeMachine/rest/accounts/deposit?customer=Gordon\&amount=10</h4>
+
+<script language="javascript" type="text/javascript">
+	var wsUri = "ws://localhost:9080/CoffeeMachine/wsep";
+	var output;
+
+	function init() {
+		output = document.getElementById("output");
+	}
+
+	function buyTea() {
+		websocket = new WebSocket(wsUri);
+		websocket.onopen = function(evt) {
+			onOpen(evt)
+		};
+		websocket.onclose = function(evt) {
+			onClose(evt)
+		};
+		websocket.onmessage = function(evt) {
+			onMessage(evt)
+		};
+	}
+
+	function onOpen(evt) {
+		writeToScreen("Opening. ");
+	}
+
+	function onClose(evt) {
+		writeToScreen("Closing.");
+	}
+
+	function onMessage(evt) {
+		writeToScreen('<span style="color: blue;">msg: ' + evt.data + '</span>');
+	}
+
+	function writeToScreen(message) {
+		var pre = document.createElement("p");
+		pre.style.wordWrap = "break-word";
+		pre.innerHTML = message;
+		output.appendChild(pre);
+	}
+
+	window.addEventListener("load", init, false);
+</script>
+
+<div id="output"></div>
+
+</html>
