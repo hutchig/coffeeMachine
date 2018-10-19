@@ -9,8 +9,11 @@
 <input onclick="buyTea()" value="Yes please!" type="button"
 	style="height: 50px; width: 100px">
 
-<h3>To charge your account open a terminal and issue:</h3>
-<h4>curl -X GET http://localhost:9080/CoffeeMachine/rest/accounts/deposit?customer=Gordon\&amount=10</h4>
+<p>To charge your account open a terminal and issue:</p>
+
+<h4 style="margin-left: 40px">
+ curl -X GET http://localhost:9080/CoffeeMachine/rest/accounts/deposit?customer=Gordon\&amount=10
+</h4>
 
 <script language="javascript" type="text/javascript">
 	var wsUri = "ws://localhost:9080/CoffeeMachine/wsep";
@@ -18,9 +21,7 @@
 
 	function init() {
 		output = document.getElementById("output");
-	}
 
-	function buyTea() {
 		websocket = new WebSocket(wsUri);
 		websocket.onopen = function(evt) {
 			onOpen(evt)
@@ -31,18 +32,23 @@
 		websocket.onmessage = function(evt) {
 			onMessage(evt)
 		};
+
+	}
+
+	function buyTea() {
+		websocket.send("tea");
 	}
 
 	function onOpen(evt) {
-		writeToScreen("Opening. ");
+		writeToScreen("Kitchen open. ");
 	}
 
 	function onClose(evt) {
-		writeToScreen("Closing.");
+		writeToScreen("Kitchen closing.");
 	}
 
 	function onMessage(evt) {
-		writeToScreen('<span style="color: blue;">msg: ' + evt.data + '</span>');
+		writeToScreen('<span>server: ' + evt.data + '</span>');
 	}
 
 	function writeToScreen(message) {
@@ -53,8 +59,10 @@
 	}
 
 	window.addEventListener("load", init, false);
+	
 </script>
 
 <div id="output"></div>
+
 
 </html>
