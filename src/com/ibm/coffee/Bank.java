@@ -1,5 +1,6 @@
 package com.ibm.coffee;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -39,7 +40,7 @@ public class Bank implements Accounts {
 
 	@GET
 	@Path("/deposit") @Produces(MediaType.TEXT_HTML)
-	public String deposit(@QueryParam("customer") String name, @QueryParam("amount") String amount) {
+	public String deposit(@QueryParam("customer") String name, @QueryParam("amount") String amount) throws NumberFormatException, IOException {
 		Customer customer = Customer.getCustomer(name);
 		increment(customer, Integer.parseInt(amount));
 		return "New balance for " + customer + " is $" + getBalance(customer) + "\n";
@@ -59,9 +60,10 @@ public class Bank implements Accounts {
 	}
 
 	@Override
-	public Integer increment(Customer who, int credit) {
+	public Integer increment(Customer who, int credit) throws IOException {
 		Integer balance = vault.get(who);
 		vault.put(who, balance + credit);
+		WebSocket.resumeVending(who);
 		return getBalance(who);
 	}
 

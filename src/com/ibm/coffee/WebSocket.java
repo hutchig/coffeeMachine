@@ -1,6 +1,8 @@
 package com.ibm.coffee;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -14,15 +16,16 @@ import javax.websocket.server.ServerEndpoint;
 @ServerEndpoint(value = "/wsep")
 public class WebSocket {
 
-	public Session webSocketSession;
+	private static final String customer = "Gordon";
+	private static Map<Customer, Session> sessions = new HashMap<Customer, Session>();
 
 	@OnOpen
 	public void onOpen(Session session) {
 
-		this.webSocketSession = session;
-
+		sessions.put(Customer.getCustomer(customer), session);
+		
 		try {
-			sendText("The coffee machine is on.");
+			sendText(Customer.getCustomer(customer), "The coffee machine is on.");
 		} catch (IOException ex) {
 			System.out.println(ex);
 		}
@@ -31,22 +34,39 @@ public class WebSocket {
 
 	@OnMessage
 	public void onMsg(String msg) throws IOException {
-		CoffeeMachine cf = new CoffeeMachine();
-		if (msg.contentEquals("tea")) {
-			sendText(cf.buy("Gordon", "tea"));
+		CoffeeMachine coffeeMachine = new CoffeeMachine();
+		if (msg.contentEquals("customer=Gordon&drink=tea")) {
+			msg = coffeeMachine.buy(customer, "tea");
+			sendText(Customer.getCustomer(customer), msg );
+			if( msg.startsWith("Charge account")) {
+				pauseVending(Customer.getCustomer(customer));
+			}
 		}
 	}
 
 	@OnClose
 	public void onClose(Session session) {
-		System.out.println(webSocketSession.getId() + " disconnected ");
+		System.out.println(sessions.get(Customer.getCustomer(customer)).getId() + " disconnected ");
 	}
 
-	public Basic getBasicRemote() {
-		return this.webSocketSession.getBasicRemote();
+	public void sendText(String customer, String txt) throws IOException {
+		getBasicRemote(Customer.getCustomer(customer)).sendText(txt);
 	}
 
-	public void sendText(String txt) throws IOException {
-		getBasicRemote().sendText(txt);
+	public static Basic getBasicRemote(Customer customer) {
+		return sessions.get(customer).getBasicRemote();
 	}
+
+	public static void sendText(Customer c , String txt) throws IOException {
+		getBasicRemote(c).sendText(txt);
+	}
+	
+	static void pauseVending(Customer customer) throws IOException {
+		sendText(customer, "pause");
+	}
+
+	static void resumeVending(Customer customer) throws IOException {
+		sendText(customer,  "resume");
+	}
+
 }

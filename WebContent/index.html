@@ -6,8 +6,8 @@
 
 <h3>Would you like a refreshing cup of Tea?</h3>
 
-<input onclick="buyTea()" value="Yes please!" type="button"
-	style="height: 50px; width: 100px">
+<input onclick="buyTea()" value="Yes please!" type="button" id="tea"
+	style="font-face: 'Comic Sans MS'; font-size: larger; color: blue; background-color: light-grey; border: 3pt ridge lightgrey height: 50px; width: 150px">
 
 <p>To charge your account open a terminal and issue:</p>
 
@@ -34,9 +34,9 @@
 		};
 
 	}
-
+	
 	function buyTea() {
-		websocket.send("tea");
+		websocket.send("customer=Gordon&drink=tea");
 	}
 
 	function onOpen(evt) {
@@ -48,6 +48,17 @@
 	}
 
 	function onMessage(evt) {
+		
+		if( evt.data == "pause" ){
+			document.getElementById("tea").value = "Wait!"
+		   	document.getElementById("tea").disabled = true;     		
+		}
+		
+		if( evt.data == "resume" ){
+			document.getElementById("tea").value = "Yes please!"
+		   	document.getElementById("tea").disabled = false;     		
+		}
+		
 		writeToScreen('<span>server: ' + evt.data + '</span>');
 	}
 
@@ -59,7 +70,7 @@
 	}
 
 	window.addEventListener("load", init, false);
-	
+		
 </script>
 
 <div id="output"></div>

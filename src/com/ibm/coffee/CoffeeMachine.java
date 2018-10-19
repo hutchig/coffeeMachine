@@ -11,7 +11,6 @@ public class CoffeeMachine implements Vend {
 
 	@Override
 	@GET
-	//@Path("/parms")
 	@Produces(MediaType.TEXT_HTML)
 	public String buy(@QueryParam("customer") String name, @QueryParam("drink") String drink) {
 
@@ -28,7 +27,7 @@ public class CoffeeMachine implements Vend {
 		} catch ( NotOnTheMenuException e) {
 			return "We are fresh out of " + drink + ".";
 		} catch (NotEnoughFundsException e) {
-			return "Sorry " + name + ", not enough funds for a " + drink + ".";
+			return "Charge account " + name + ", not enough funds for a " + drink + ".";
 		}
 		
 	
