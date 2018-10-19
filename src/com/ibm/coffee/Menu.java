@@ -24,10 +24,33 @@ public class Menu {
 		return result;
     }
 
-	public static boolean hasDrink(Drink d) {
+	static boolean hasDrink(Drink d) {
 		return d!=null && menu.keySet().contains(d);
 	}
 
+	static Integer getDrinkCost(String drinkName) throws InvalidDrinkException, NotOnTheMenuException {
+		return getDrinkCost(stringToDrink(drinkName));
+	}
+
+	static Integer getDrinkCost(Drink d) throws NotOnTheMenuException {
+		if( hasDrink(d) ) {
+			return getCost(d);
+		}else {
+			throw new NotOnTheMenuException();
+		}
+	}
+
+	static Drink stringToDrink(String drinkName) throws InvalidDrinkException {
+		Drink d = null;
+		if (drinkName != null) {
+			try {
+				d = Drink.valueOf(drinkName.toUpperCase());
+			} catch (IllegalArgumentException x) {
+				throw new InvalidDrinkException();
+			}
+		}
+		return d;
+	}
 	public static Integer getCost(Drink d) {
 		return menu.get(d);
 	}

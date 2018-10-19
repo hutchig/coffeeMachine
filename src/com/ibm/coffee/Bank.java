@@ -11,16 +11,16 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
-import com.ibm.coffee.Accounts;
-import com.ibm.coffee.Customer;
-import com.ibm.coffee.NotEnoughFundsException;
+import org.reactivestreams.Subscriber;
+import org.reactivestreams.Subscription;
 
 @Path("accounts")
 @ApplicationScoped
-public class Bank implements Accounts {
+public class Bank implements Accounts, Subscriber<Vend> {
 
 	private static Map<Customer, Integer> vault = getVault();
 	private static Bank instance;
+	private Subscription subscription;
 
 	public Bank() {
 		instance = this;
@@ -39,15 +39,15 @@ public class Bank implements Accounts {
 	}
 
 	@GET
-	@Path("/deposit") @Produces(MediaType.TEXT_HTML)
-	public String deposit(@QueryParam("customer") String name, @QueryParam("amount") String amount) throws NumberFormatException, IOException {
+	@Path("/deposit")
+	@Produces(MediaType.TEXT_HTML)
+	public String deposit(@QueryParam("customer") String name, @QueryParam("amount") String amount)
+			throws NumberFormatException, IOException {
 		Customer customer = Customer.getCustomer(name);
 		increment(customer, Integer.parseInt(amount));
 		return "New balance for " + customer + " is $" + getBalance(customer) + "\n";
 	}
 
-	
-	
 	@Override
 	public Integer decrement(Customer who, int debit) throws NotEnoughFundsException {
 
@@ -63,7 +63,9 @@ public class Bank implements Accounts {
 	public Integer increment(Customer who, int credit) throws IOException {
 		Integer balance = vault.get(who);
 		vault.put(who, balance + credit);
+
 		WebSocket.resumeVending(who);
+
 		return getBalance(who);
 	}
 
@@ -93,4 +95,43 @@ public class Bank implements Accounts {
 		return accounts();
 	}
 
+	@Override
+	public void onComplete() {
+	}
+
+	@Override
+	public void onError(Throwable t) {
+	}
+
+	@Override
+	public void onSubscribe(Subscription sub) {
+		subscription = sub;
+		subscription.request(1);
+	}
+
+	@Override
+	public void onNext(Vend v) {
+		try {
+
+			if (!v.customer.equals(Customer.getCustomer("IGNORE"))) {			
+				Integer cost = Menu.getDrinkCost(v.drink);
+				Bank bank = Bank.getBank();
+				Integer balance = bank.decrement(v.customer, cost);
+				CoffeeMachine.screen(v, "Enjoy your " + v.drink + " " + v.customer + ", $" + balance + " left.");
+			}
+			
+			subscription.request(1);
+
+		} catch (NotOnTheMenuException e) {
+			CoffeeMachine.screen(v, "We are fresh out of " + v.drink + ".");
+		} catch (NotEnoughFundsException e) {
+			CoffeeMachine.screen(v, "Charge account " + v.customer + ", not enough funds for a " + v.drink + ".");
+			try {
+				WebSocket.pauseVending(v.customer);
+			} catch (IOException e1) {
+				e1.printStackTrace();
+			}
+		}
+
+	}
 }
