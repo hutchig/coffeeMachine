@@ -37,7 +37,7 @@ public class CoffeeMachine implements Publisher<Vend>{
 			Vend v = new Vend(c, d);
 			vends.add(v);
 			sub.attemptVend();
-			return "Purchase queued: " + vends;
+			return "Purchases queued: " + vends;
 		} catch (InvalidDrinkException e) {
 			return "Invalid drink: " + drink + " requested";
 		}

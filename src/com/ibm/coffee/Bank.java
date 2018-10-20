@@ -115,12 +115,11 @@ public class Bank implements Accounts, Subscriber<Vend> {
 
 			if (!v.customer.equals(Customer.getCustomer("IGNORE"))) {			
 				Integer cost = Menu.getDrinkCost(v.drink);
-				Bank bank = Bank.getBank();
-				Integer balance = bank.decrement(v.customer, cost);
+				Integer balance = decrement(v.customer, cost);
 				CoffeeMachine.screen(v, "Enjoy your " + v.drink + " " + v.customer + ", $" + balance + " left.");
 			}
 			
-			subscription.request(100);
+			subscription.request(1);
 
 		} catch (NotOnTheMenuException e) {
 			CoffeeMachine.screen(v, "We are fresh out of " + v.drink + ".");
