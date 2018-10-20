@@ -17,7 +17,7 @@ import com.sun.jmx.snmp.ThreadContext;
 
 @Path("vend")
 @ApplicationScoped
-public class CoffeeMachine {
+public class CoffeeMachine  {
 
 	static public final Queue<Vend> vends = new LinkedList<Vend>();
 
@@ -64,7 +64,7 @@ public class CoffeeMachine {
 			} catch (InterruptedException e) {
 				return new Vend(Customer.getCustomer("IGNORE"), Drink.TEA);
 			}
-			System.out.println("No pernding vends" + vends);
+			System.out.println("No pending vends" + vends);
 			v = vends.poll();
 		}
 		return v;
