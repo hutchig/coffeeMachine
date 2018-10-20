@@ -106,7 +106,7 @@ public class Bank implements Accounts, Subscriber<Vend> {
 	@Override
 	public void onSubscribe(Subscription sub) {
 		subscription = sub;
-		subscription.request(1);
+		subscription.request(100);
 	}
 
 	@Override
@@ -120,7 +120,7 @@ public class Bank implements Accounts, Subscriber<Vend> {
 				CoffeeMachine.screen(v, "Enjoy your " + v.drink + " " + v.customer + ", $" + balance + " left.");
 			}
 			
-			subscription.request(1);
+			subscription.request(100);
 
 		} catch (NotOnTheMenuException e) {
 			CoffeeMachine.screen(v, "We are fresh out of " + v.drink + ".");
