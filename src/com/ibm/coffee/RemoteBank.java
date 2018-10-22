@@ -19,7 +19,7 @@ public class RemoteBank implements Subscriber<Vend> {
 
 	private static final String TARGET_ROOT = "http://localhost:9090/Bank/rest/accounts/";
 
-	public RemoteBank() {
+	private RemoteBank() {
 		instance = this;
 
 		client = ClientBuilder.newClient();
@@ -41,13 +41,30 @@ public class RemoteBank implements Subscriber<Vend> {
 
 	@Override
 	public void onNext(Vend v) {
-		if (v.customer.equals(Customer.getCustomer("Gordon")) && v.drink == Drink.TEA)
-			withdraw.queryParam("customer", "Gordon").queryParam("amount", "1").request(MediaType.TEXT_PLAIN);
+		if (v.customer.equals(Customer.getCustomer("Gordon")) && v.drink == Drink.TEA) {
+			try {
+
+				String result = withdraw.queryParam("customer", "Gordon").queryParam("amount", "1")
+						.request(MediaType.TEXT_PLAIN).get(String.class);
+
+				if (!"REFUSED".equals(result)) {
+					CoffeeMachine.screen(v,
+							"Enjoy your " + v.drink + " " + v.customer + ", $" + Integer.parseInt(result) + " left.");
+				} else {
+					WebSocket.pauseVending(v.customer);
+				}
+			} catch (Throwable t) {
+				t.printStackTrace();
+			}
+
+		}
+		subscription.request(1);
 	}
 
 	@Override
 	public void onSubscribe(Subscription sub) {
-		subscription = sub;
+		if (subscription == null)
+			subscription = sub;
 		subscription.request(1);
 	}
 

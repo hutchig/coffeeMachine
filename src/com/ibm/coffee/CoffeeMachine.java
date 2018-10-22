@@ -25,7 +25,7 @@ import org.reactivestreams.Subscriber;
 public class CoffeeMachine implements Publisher<Vend>{
 
 	static public final Queue<Vend> vends = new LinkedList<Vend>();
-	private static CoffeeSubscription<Vend> sub;
+	private static CoffeeSubscription<Vend> subscription;
 
 	@GET
 	@Produces(MediaType.TEXT_HTML)
@@ -36,7 +36,7 @@ public class CoffeeMachine implements Publisher<Vend>{
 			Drink d = Menu.stringToDrink(drink);
 			Vend v = new Vend(c, d);
 			vends.add(v);
-			sub.attemptVend();
+			subscription.attemptVend();
 			return "Purchases queued: " + vends;
 		} catch (InvalidDrinkException e) {
 			return "Invalid drink: " + drink + " requested";
@@ -79,7 +79,8 @@ public class CoffeeMachine implements Publisher<Vend>{
 	}
 
 	static boolean hasNextVend() {
-		return !vends.isEmpty();
+		boolean result = !vends.isEmpty();
+		return result;
 	}
 
 	static void screen(Vend v, String t) {
@@ -92,8 +93,8 @@ public class CoffeeMachine implements Publisher<Vend>{
 
 	@Override
 	public void subscribe(Subscriber<? super Vend> subscriber) {
-		sub = new CoffeeSubscription<Vend>(subscriber);
-		subscriber.onSubscribe(sub);		
+		subscription = new CoffeeSubscription<Vend>(subscriber);
+		subscriber.onSubscribe(subscription);		
 	}
 
 }

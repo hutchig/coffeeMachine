@@ -15,7 +15,7 @@ public class KitchenApplication extends Application {
 	public static void run() {
 		if (!running) {
 
-			boolean split = false;
+			boolean split = true;
 
 			Publisher<Vend> coffeeMachine = new CoffeeMachine();
 			

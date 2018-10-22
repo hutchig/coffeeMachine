@@ -26,11 +26,11 @@ class CoffeeSubscription<T> implements Subscription {
 	public void attemptVend() {
 		while (requests.get() > 0 && CoffeeMachine.hasNextVend() && !terminated.get()) {
 			try {
+				requests.decrementAndGet();
 				subscriber.onNext((T) CoffeeMachine.getNextVend());
 			} catch (Throwable e) {
 				subscriber.onError(e);
 			}
-			requests.decrementAndGet();
 		}
 	}
 
