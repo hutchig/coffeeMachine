@@ -30,64 +30,15 @@ public class CoffeeMachine implements Publisher<Vend>{
 	@GET
 	@Produces(MediaType.TEXT_HTML)
 	public String buy(@QueryParam("customer") String name, @QueryParam("drink") String drink) {
-
 		try {
 			Customer c = Customer.getCustomer(name);
 			Drink d = Menu.stringToDrink(drink);
 			Vend v = new Vend(c, d);
 			vends.add(v);
 			subscription.attemptVend();
-			return "Purchases queued: " + vends;
+			return "Purchase attempted:" + v;
 		} catch (InvalidDrinkException e) {
 			return "Invalid drink: " + drink + " requested";
-		}
-
-// The code below was commented out when KitchenApplication composed a reactive stream.
-//		try {
-//			Integer cost = Menu.getDrinkCost(drink);
-//			
-//			Bank bank = Bank.getBank();
-//			Integer balance = bank.decrement(customer, cost);
-//			
-//			return "Enjoy your " + drink + " " + customer + ", $" + balance + " left.";
-//
-//		} catch (InvalidDrinkException e) {
-//			return "Invalid drink: " + drink + " requested";
-//		} catch ( NotOnTheMenuException e) {
-//			return "We are fresh out of " + drink + ".";
-//		} catch (NotEnoughFundsException e) {
-//			return "Charge account " + name + ", not enough funds for a " + drink + ".";
-//		}
-
-	}
-
-	static Vend getNextVend() {
-
-		Vend v = vends.poll();
-
-		while (v == null) {
-			try {
-				Thread.sleep(1000);
-			} catch (InterruptedException e) {
-				return new Vend(Customer.getCustomer("IGNORE"), Drink.TEA);
-			}
-			System.out.println("No pending vends" + vends);
-			v = vends.poll();
-		}
-		return v;
-
-	}
-
-	static boolean hasNextVend() {
-		boolean result = !vends.isEmpty();
-		return result;
-	}
-
-	static void screen(Vend v, String t) {
-		try {
-			WebSocket.sendText(v.customer, t);
-		} catch (IOException e) {
-			e.printStackTrace();
 		}
 	}
 
@@ -96,5 +47,24 @@ public class CoffeeMachine implements Publisher<Vend>{
 		subscription = new CoffeeSubscription<Vend>(subscriber);
 		subscriber.onSubscribe(subscription);		
 	}
+	
+	static void screen(Vend v, String t) {
+		try {
+			WebSocket.sendText(v.customer, t);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
 
+	static Vend getNextVend() {
+		return vends.poll();
+	}
+
+	static boolean hasNextVend() {
+		return !vends.isEmpty();
+	}
+
+	public static void requeueVend(Vend v) {
+	    vends.add(v);	
+	}
 }

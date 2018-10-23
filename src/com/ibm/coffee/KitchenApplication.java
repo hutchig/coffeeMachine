@@ -15,22 +15,23 @@ public class KitchenApplication extends Application {
 	public static void run() {
 		if (!running) {
 
-			boolean split = true;
-
 			Publisher<Vend> coffeeMachine = new CoffeeMachine();
-			
-			Subscriber<Vend> bank;
-			if (!split) {
-				bank = Bank.getBank();
-			} else {
-				bank = RemoteBank.getBank();
-			}
-			
-			
-			//ReactiveStreams.generate(CoffeeMachine::getNextVend).to(bank).run();
-			
-			ReactiveStreams.fromPublisher(coffeeMachine).to(bank).run();
-			
+
+			Subscriber<Vend> bank = Bank.getBank();
+			Subscriber<Vend> remoteBank = RemoteBank.getBank();
+
+			// ReactiveStreams.generate(CoffeeMachine::getNextVend).to(bank).run();
+
+			// ReactiveStreams.fromPublisher(coffeeMachine).to(bank).run();
+
+			// ReactiveStreams.fromPublisher(coffeeMachine).peek(v->System.out.println(v.customer + " is in the kitchen.")).to(remoteBank).run();
+
+            // ReactiveStreams.fromPublisher(coffeeMachine).peek(System.out::println).to(remoteBank).run();
+
+			// ReactiveStreams.fromPublisher(coffeeMachine).filter(d->d.drink!=Drink.TEA).to(remoteBank).run();
+
+			 ReactiveStreams.fromPublisher(coffeeMachine).to(remoteBank).run();
+
 			running = true;
 		}
 	}

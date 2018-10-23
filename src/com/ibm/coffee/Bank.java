@@ -105,8 +105,12 @@ public class Bank implements Accounts, Subscriber<Vend> {
 
 	@Override
 	public void onSubscribe(Subscription sub) {
-		subscription = sub;
+		setSubscription(sub);
 		subscription.request(100);
+	}
+	
+	private void setSubscription(Subscription sub) {
+		if (subscription == null)subscription = sub;
 	}
 
 	@Override

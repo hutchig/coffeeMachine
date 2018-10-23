@@ -23,6 +23,11 @@ class CoffeeSubscription<T> implements Subscription {
 		attemptVend();
 	}
 
+	@Override
+	public void cancel() {
+		terminated.getAndSet(true);
+	}
+
 	public void attemptVend() {
 		while (requests.get() > 0 && CoffeeMachine.hasNextVend() && !terminated.get()) {
 			try {
@@ -32,11 +37,6 @@ class CoffeeSubscription<T> implements Subscription {
 				subscriber.onError(e);
 			}
 		}
-	}
-
-	@Override
-	public void cancel() {
-		terminated.getAndSet(true);
 	}
 
 }

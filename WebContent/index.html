@@ -4,25 +4,40 @@
 
 <title>Coffee Machine App</title>
 
-<h3>Would you like a refreshing cup of Tea?</h3>
+<h3>Would you like a refreshing drink?</h3>
 
-<input onclick="buyTea()" value="Yes please!" type="button" id="tea"
+<input onclick="buyTea()" value="tea" type="button" id="tea"
+	style="font-face: 'Comic Sans MS'; font-size: larger; color: blue; background-color: light-grey; border: 3pt ridge lightgrey height: 50px; width: 150px">
+
+<input onclick="buyCoffee()" value="coffee" type="button" id="coffee"
+	style="font-face: 'Comic Sans MS'; font-size: larger; color: blue; background-color: light-grey; border: 3pt ridge lightgrey height: 50px; width: 150px">
+
+<input onclick="buyLatte()" value="latte" type="button" id="latte"
 	style="font-face: 'Comic Sans MS'; font-size: larger; color: blue; background-color: light-grey; border: 3pt ridge lightgrey height: 50px; width: 150px">
 
 <p>To charge your account open a terminal and issue:</p>
 
-<h4 style="margin-left: 40px">
- curl -X GET http://localhost:9080/CoffeeMachine/rest/accounts/deposit?customer=Gordon\&amount=10
+<h4 style="margin-left: 40px">curl -X GET
+	http://localhost:9080/CoffeeMachine/rest/accounts/deposit?customer=Gordon\&amount=10
+</h4>
+<h4 style="margin-left: 40px">curl -X GET
+	http://localhost:9090/Bank/rest/accounts/deposit?customer=Gordon\&amount=10
 </h4>
 
 <p>Or browse these URLs:</p>
 
 <p style="margin-left: 40px">
-<a href="http://localhost:9090/Bank/rest/accounts/deposit?customer=Gordon&amount=10" target="_blank">Microservice Bank "http://localhost:9090/Bank/rest/accounts/deposit?customer=Gordon&amount=10"</a>
+	<a
+		href="http://localhost:9090/Bank/rest/accounts/deposit?customer=Gordon&amount=10"
+		target="_blank">Microservice Bank
+		"http://localhost:9090/Bank/rest/accounts/deposit?customer=Gordon&amount=10"</a>
 </p>
 
 <p style="margin-left: 40px">
-<a href="http://localhost:9080/CoffeeMachine/rest/accounts/deposit?customer=Gordon&amount=10" target="_blank">Integrated Bank "http://localhost:9080/CoffeeMachine/rest/accounts/deposit?customer=Gordon&amount=10"</a>
+	<a
+		href="http://localhost:9080/CoffeeMachine/rest/accounts/deposit?customer=Gordon&amount=10"
+		target="_blank">Integrated Bank
+		"http://localhost:9080/CoffeeMachine/rest/accounts/deposit?customer=Gordon&amount=10"</a>
 </p>
 
 
@@ -45,7 +60,7 @@
 		};
 
 	}
-	
+
 	function buyTea() {
 		websocket.send("customer=Gordon&drink=tea");
 	}
@@ -59,18 +74,30 @@
 	}
 
 	function onMessage(evt) {
-		
-		if( evt.data == "pause" ){
-			document.getElementById("tea").value = "Wait!"
-		   	document.getElementById("tea").disabled = true;     		
+
+		if (evt.data == "pause") {
+			buttonOff("tea");
+			buttonOff("coffee");
+			buttonOff("latte");
 		}
-		
-		if( evt.data == "resume" ){
-			document.getElementById("tea").value = "Yes please!"
-		   	document.getElementById("tea").disabled = false;     		
+
+		if (evt.data == "resume") {
+			buttonOn( "tea");
+			buttonOn( "coffee");
+			buttonOn( "latte");
 		}
-		
+
 		writeToScreen('<span>server: ' + evt.data + '</span>');
+	}
+
+	function buttonOff(id) {
+		document.getElementById(id).value = "wait"
+		document.getElementById(id).disabled = true;
+	}
+
+	function buttonOn(id) {
+		document.getElementById(id).value = id
+		document.getElementById(id).disabled = false;
 	}
 
 	function writeToScreen(message) {
@@ -81,7 +108,6 @@
 	}
 
 	window.addEventListener("load", init, false);
-		
 </script>
 
 <div id="output"></div>

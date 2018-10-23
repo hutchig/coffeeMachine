@@ -1,5 +1,7 @@
 package com.ibm.coffee;
 
+import java.io.IOException;
+
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.WebTarget;
@@ -52,19 +54,25 @@ public class RemoteBank implements Subscriber<Vend> {
 							"Enjoy your " + v.drink + " " + v.customer + ", $" + Integer.parseInt(result) + " left.");
 				} else {
 					WebSocket.pauseVending(v.customer);
+					CoffeeMachine.requeueVend(v);
 				}
-			} catch (Throwable t) {
-				t.printStackTrace();
+			} catch (javax.ws.rs.ProcessingException t) {
+				CoffeeMachine.screen(v,
+						"The Bank is closed so - no " + v.drink.name().toLowerCase() + " " + v.customer + ", Sorry.");
+				CoffeeMachine.requeueVend(v);
+				sleep(1000); // As we will keep trying!
+			} catch (IOException e) {
+				e.printStackTrace();
 			}
 
 		}
 		subscription.request(1);
 	}
 
+
 	@Override
 	public void onSubscribe(Subscription sub) {
-		if (subscription == null)
-			subscription = sub;
+		setSubscription(sub);
 		subscription.request(1);
 	}
 
@@ -72,4 +80,15 @@ public class RemoteBank implements Subscriber<Vend> {
 		return instance != null ? instance : new RemoteBank();
 	}
 
+	private void setSubscription(Subscription sub) {
+		if (subscription == null)
+			subscription = sub;
+	}
+
+	private void sleep(int ms) {
+		try {
+			Thread.sleep(ms);
+		} catch (InterruptedException e) {
+		}
+	}
 }
