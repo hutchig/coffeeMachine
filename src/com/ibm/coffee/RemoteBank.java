@@ -49,12 +49,12 @@ public class RemoteBank implements Subscriber<Vend> {
 				String result = withdraw.queryParam("customer", "Gordon").queryParam("amount", "1")
 						.request(MediaType.TEXT_PLAIN).get(String.class);
 
-				if (!"REFUSED".equals(result)) {
-					CoffeeMachine.screen(v,
-							"Enjoy your " + v.drink + " " + v.customer + ", $" + Integer.parseInt(result) + " left.");
-				} else {
+				if ("REFUSED".equals(result)) {
 					WebSocket.pauseVending(v.customer);
 					CoffeeMachine.requeueVend(v);
+				} else {
+					CoffeeMachine.screen(v,
+							"Enjoy your " + v.drink + " " + v.customer + ", $" + Integer.parseInt(result) + " left.");
 				}
 			} catch (javax.ws.rs.ProcessingException t) {
 				CoffeeMachine.screen(v,

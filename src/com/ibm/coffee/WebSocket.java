@@ -42,6 +42,7 @@ public class WebSocket {
 	public void onMsg(String msg) throws IOException {
 		CoffeeMachine coffeeMachine = new CoffeeMachine();
 		
+		// cut this corner for the demo code
 		if (msg.contentEquals("customer=Gordon&drink=tea")) {
 			String reply = coffeeMachine.buy(customer, "tea");
 			

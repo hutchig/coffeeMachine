@@ -106,35 +106,38 @@ public class Bank implements Accounts, Subscriber<Vend> {
 	@Override
 	public void onSubscribe(Subscription sub) {
 		setSubscription(sub);
-		subscription.request(100);
-	}
-	
-	private void setSubscription(Subscription sub) {
-		if (subscription == null)subscription = sub;
 	}
 
 	@Override
 	public void onNext(Vend v) {
+
+		Integer balance = null;
+		
 		try {
 
-			if (!v.customer.equals(Customer.getCustomer("IGNORE"))) {			
-				Integer cost = Menu.getDrinkCost(v.drink);
-				Integer balance = decrement(v.customer, cost);
-				CoffeeMachine.screen(v, "Enjoy your " + v.drink + " " + v.customer + ", $" + balance + " left.");
-			}
-			
-			subscription.request(1);
+			Integer cost = Menu.getDrinkCost(v.drink);
+			balance = decrement(v.customer, cost);
 
 		} catch (NotOnTheMenuException e) {
 			CoffeeMachine.screen(v, "We are fresh out of " + v.drink + ".");
 		} catch (NotEnoughFundsException e) {
-			CoffeeMachine.screen(v, "Charge account " + v.customer + ", not enough funds for a " + v.drink + ".");
+			CoffeeMachine.screen(v, "Make a deposit " + v.customer + ", not enough funds for a " + v.drink + ".");
 			try {
 				WebSocket.pauseVending(v.customer);
 			} catch (IOException e1) {
 				e1.printStackTrace();
 			}
 		}
+		CoffeeMachine.screen(v, "Enjoy your " + v.drink + " " + v.customer + ", $" + balance + " left.");
+		subscription.request(1);
 
 	}
+
+	private void setSubscription(Subscription sub) {
+		if (subscription == null) {
+			subscription = sub;
+			subscription.request(1);
+		}
+	}
+
 }
